@@ -1,0 +1,20 @@
+CREAR TURNO
+
+{
+  "id_agenda": 1,
+  "dni_paciente": "1",
+  "fecha_turno": "2025-10-01T08:34:00",
+  "hora_turno": "08:34:00",
+  "motivo": "control prueba"
+}
+
+REGISTRAR ATENCION
+
+{
+  "idTurno": 1,
+  "idMedico": 27777111,
+  "idHistoriaClinica": 1,
+  "diagnostico": "Hipertensión leve",
+  "tratamiento": "Control mensual, dieta",
+  "estudios": "Tensión arterial, ECG"
+}
