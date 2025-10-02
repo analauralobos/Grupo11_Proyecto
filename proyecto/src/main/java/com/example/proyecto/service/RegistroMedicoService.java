@@ -38,52 +38,28 @@ public class RegistroMedicoService {
 
     
     public RegistroMedico registrarAtencion(RegistroMedico rm) {
-
-        System.out.println("=== registrarAtencion INICIO ===");
-        System.out.println("Datos recibidos:");
-        System.out.println("idTurno: " + rm.getIdTurno());
-        System.out.println("idMedico: " + rm.getIdMedico());
-        System.out.println("idHistoriaClinica: " + rm.getIdHistoriaClinica());
-        System.out.println("Diagnostico: " + rm.getDiagnostico());
-        System.out.println("Tratamiento: " + rm.getTratamiento());
-        System.out.println("Estudios: " + rm.getEstudios());
-    
-        // Obtener turno
+        
         Turno turno = turnoDAO.obtenerPorId(rm.getIdTurno());
-        if (turno == null) {
-            System.out.println("Turno no encontrado con id: " + rm.getIdTurno());
+        if (turno == null) {            
             throw new RuntimeException("El turno no existe");
         }
-        System.out.println("Turno encontrado: " + turno);
-    
-        // Validar estado del turno
-        if (!turno.getIdEstado().equals(1)) {
-            System.out.println("Estado del turno no es válido: " + turno.getIdEstado());
+        
+        if (!turno.getIdEstado().equals(1)) {            
             throw new RuntimeException("El turno no está disponible para registrar atención");
         }
-        System.out.println("Estado del turno OK: " + turno.getIdEstado());
-    
-        // Validar campos obligatorios
-        if (rm.getDiagnostico() == null || rm.getDiagnostico().isEmpty()) {
-            System.out.println("Falta diagnóstico");
+        
+        if (rm.getDiagnostico() == null || rm.getDiagnostico().isEmpty()) {           
             throw new RuntimeException("Debe ingresar el diagnóstico");
         }
-        if (rm.getTratamiento() == null || rm.getTratamiento().isEmpty()) {
-            System.out.println("Falta tratamiento");
+        if (rm.getTratamiento() == null || rm.getTratamiento().isEmpty()) {            
             throw new RuntimeException("Debe ingresar el tratamiento");
-        }
-    
-        System.out.println("Creando registro médico...");
+        }   
+        
         RegistroMedico nuevoRegistro = dao.crear(rm);
-        System.out.println("Registro médico creado: " + nuevoRegistro);
-    
-        // Actualizar estado del turno a Finalizado (id_estado = 3)
-        System.out.println("Actualizando estado del turno a Finalizado...");
+        
         turno.setIdEstado(3);
         turnoDAO.actualizar(turno);
-        System.out.println("Turno actualizado: " + turno);
-    
-        System.out.println("=== registrarAtencion FIN ===");
+        
         return nuevoRegistro;
     }
     

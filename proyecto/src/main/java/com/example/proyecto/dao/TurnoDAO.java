@@ -91,7 +91,7 @@ public class TurnoDAO implements ITurnoDAO {
 
         
         String fechaHora = turno.getFechaTurno().replace("T", " ");
-        if (fechaHora.length() == 16) { /
+        if (fechaHora.length() == 16) { 
             fechaHora += ":00";
         }
 
