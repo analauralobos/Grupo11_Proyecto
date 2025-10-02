@@ -23,6 +23,11 @@ public class RegistroMedicoController {
         RegistroMedico rm = service.obtenerPorId(id);
         return rm != null ? ResponseEntity.ok(rm) : ResponseEntity.notFound().build();
     }
+    
+    @PostMapping("/registrar")
+    public RegistroMedico registrarAtencion(@RequestBody RegistroMedico rm) {
+        return service.registrarAtencion(rm);
+    }
 
     @PostMapping
     public RegistroMedico crear(@RequestBody RegistroMedico rm) {

@@ -81,22 +81,30 @@ public class TurnoDAO implements ITurnoDAO {
         }
     }
 
+    
     @Override
     public Turno actualizar(Turno turno) {
         String sql = "UPDATE turno SET id_agenda=:idAgenda, dni_paciente=:dniPaciente, " +
-                     "fecha_turno=:fechaTurno, hora_turno=:horaTurno, id_estado=:idEstado, motivo=:motivo " +
-                     "WHERE id_turno=:idTurno";
+                 "fecha_turno=:fechaTurno, hora_turno=:horaTurno, id_estado=:idEstado, motivo=:motivo " +
+                 "WHERE id_turno=:idTurno";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            con.createQuery(sql)
-                    .addParameter("idAgenda", turno.getIdAgenda())
-                    .addParameter("dniPaciente", Integer.parseInt(turno.getDniPaciente()))
-                    .addParameter("fechaTurno", Timestamp.valueOf(turno.getFechaTurno().replace("T", " ")))
-                    .addParameter("horaTurno", Time.valueOf(turno.getHoraTurno()))
-                    .addParameter("idEstado", turno.getIdEstado())
-                    .addParameter("motivo", turno.getMotivo())
-                    .addParameter("idTurno", turno.getIdTurno())
-                    .executeUpdate();
-            return turno;
+
+        
+        String fechaHora = turno.getFechaTurno().replace("T", " ");
+        if (fechaHora.length() == 16) { /
+            fechaHora += ":00";
+        }
+
+        con.createQuery(sql)
+                .addParameter("idAgenda", turno.getIdAgenda())
+                .addParameter("dniPaciente", Integer.parseInt(turno.getDniPaciente()))
+                .addParameter("fechaTurno", Timestamp.valueOf(fechaHora))
+                .addParameter("horaTurno", Time.valueOf(turno.getHoraTurno()))
+                .addParameter("idEstado", turno.getIdEstado())
+                .addParameter("motivo", turno.getMotivo())
+                .addParameter("idTurno", turno.getIdTurno())
+                .executeUpdate();
+        return turno;
         }
     }
 

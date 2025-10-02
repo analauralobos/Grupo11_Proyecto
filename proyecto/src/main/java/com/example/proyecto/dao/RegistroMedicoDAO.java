@@ -2,10 +2,13 @@ package com.example.proyecto.dao;
 
 import com.example.proyecto.interfaces.IRegistroMedicoDAO;
 import com.example.proyecto.model.RegistroMedico;
+import com.example.proyecto.sql2o.Sql2oDAO;
 import org.sql2o.Connection;
 import org.springframework.stereotype.Repository;
-import com.example.proyecto.sql2o.Sql2oDAO;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class RegistroMedicoDAO implements IRegistroMedicoDAO {
@@ -15,7 +18,8 @@ public class RegistroMedicoDAO implements IRegistroMedicoDAO {
         String sql = "INSERT INTO registro_medico (id_turno, id_medico, id_historiaclinica, diagnostico, tratamiento, estudios) " +
                      "VALUES (:id_turno, :id_medico, :id_historiaclinica, :diagnostico, :tratamiento, :estudios)";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            Integer id = (Integer) con.createQuery(sql, true)
+
+            Object keyObj = con.createQuery(sql, true)
                     .addParameter("id_turno", rm.getIdTurno())
                     .addParameter("id_medico", rm.getIdMedico())
                     .addParameter("id_historiaclinica", rm.getIdHistoriaClinica())
@@ -24,7 +28,11 @@ public class RegistroMedicoDAO implements IRegistroMedicoDAO {
                     .addParameter("estudios", rm.getEstudios())
                     .executeUpdate()
                     .getKey();
-            rm.setIdRegistroMedico(id);
+
+            // Convertir BigInteger a Integer
+            rm.setIdRegistroMedico((keyObj instanceof Number) ? ((Number) keyObj).intValue() : null);
+
+            System.out.println("Registro médico creado con ID: " + rm.getIdRegistroMedico());
             return rm;
         }
     }
@@ -33,17 +41,48 @@ public class RegistroMedicoDAO implements IRegistroMedicoDAO {
     public List<RegistroMedico> obtenerTodos() {
         String sql = "SELECT * FROM registro_medico";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            return con.createQuery(sql).executeAndFetch(RegistroMedico.class);
+            List<Map<String, Object>> rows = con.createQuery(sql).executeAndFetchTable().asList();
+            List<RegistroMedico> lista = new ArrayList<>();
+
+            for (Map<String, Object> row : rows) {
+                RegistroMedico rm = new RegistroMedico();
+                rm.setIdRegistroMedico(((Number) row.get("id_registromedico")).intValue());
+                rm.setIdTurno((Integer) row.get("id_turno"));
+                rm.setIdMedico((Integer) row.get("id_medico"));
+                rm.setIdHistoriaClinica((Integer) row.get("id_historiaclinica"));
+                rm.setDiagnostico((String) row.get("diagnostico"));
+                rm.setTratamiento((String) row.get("tratamiento"));
+                rm.setEstudios((String) row.get("estudios"));
+                lista.add(rm);
+            }
+
+            System.out.println("Total registros médicos obtenidos: " + lista.size());
+            return lista;
         }
     }
 
     @Override
     public RegistroMedico obtenerPorId(Integer id) {
-        String sql = "SELECT * FROM registro_medico WHERE id_registromedico=:id";
+        String sql = "SELECT * FROM registro_medico WHERE id_registromedico = :id";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            return con.createQuery(sql)
-                      .addParameter("id", id)
-                      .executeAndFetchFirst(RegistroMedico.class);
+            List<Map<String, Object>> rows = con.createQuery(sql)
+                    .addParameter("id", id)
+                    .executeAndFetchTable()
+                    .asList();
+            if (rows.isEmpty()) return null;
+
+            Map<String, Object> row = rows.get(0);
+            RegistroMedico rm = new RegistroMedico();
+            rm.setIdRegistroMedico(((Number) row.get("id_registromedico")).intValue());
+            rm.setIdTurno((Integer) row.get("id_turno"));
+            rm.setIdMedico((Integer) row.get("id_medico"));
+            rm.setIdHistoriaClinica((Integer) row.get("id_historiaclinica"));
+            rm.setDiagnostico((String) row.get("diagnostico"));
+            rm.setTratamiento((String) row.get("tratamiento"));
+            rm.setEstudios((String) row.get("estudios"));
+
+            System.out.println("Registro médico encontrado: " + rm.getIdRegistroMedico());
+            return rm;
         }
     }
 
@@ -61,6 +100,8 @@ public class RegistroMedicoDAO implements IRegistroMedicoDAO {
                .addParameter("estudios", rm.getEstudios())
                .addParameter("id", rm.getIdRegistroMedico())
                .executeUpdate();
+
+            System.out.println("Registro médico actualizado: " + rm.getIdRegistroMedico());
             return rm;
         }
     }
@@ -72,6 +113,7 @@ public class RegistroMedicoDAO implements IRegistroMedicoDAO {
             con.createQuery(sql)
                .addParameter("id", id)
                .executeUpdate();
+            System.out.println("Registro médico eliminado: " + id);
         }
     }
 }
