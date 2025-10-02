@@ -2,10 +2,15 @@ package com.example.proyecto.dao;
 
 import com.example.proyecto.interfaces.IAgendaDAO;
 import com.example.proyecto.model.Agenda;
-import org.springframework.stereotype.Repository;
 import com.example.proyecto.sql2o.Sql2oDAO;
 import org.sql2o.Connection;
+import org.springframework.stereotype.Repository;
+
+import java.sql.Timestamp;
+import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class AgendaDAO implements IAgendaDAO {
@@ -15,17 +20,18 @@ public class AgendaDAO implements IAgendaDAO {
         String sql = "INSERT INTO agenda (dni_medico, fecha_atencion, hora_inicio, hora_fin, estado_agenda, descripcion, ubicacion) " +
                      "VALUES (:dni_medico, :fecha_atencion, :hora_inicio, :hora_fin, :estado_agenda, :descripcion, :ubicacion)";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            Integer id = (Integer) con.createQuery(sql, true)
+            Object keyObj = con.createQuery(sql, true)
                     .addParameter("dni_medico", agenda.getDniMedico())
-                    .addParameter("fecha_atencion", agenda.getFechaAtencion())
-                    .addParameter("hora_inicio", agenda.getHoraInicio())
-                    .addParameter("hora_fin", agenda.getHoraFin())
+                    .addParameter("fecha_atencion", Timestamp.valueOf(agenda.getFechaAtencion().replace("T", " ")))
+                    .addParameter("hora_inicio", Time.valueOf(agenda.getHoraInicio()))
+                    .addParameter("hora_fin", Time.valueOf(agenda.getHoraFin()))
                     .addParameter("estado_agenda", agenda.getEstadoAgenda())
                     .addParameter("descripcion", agenda.getDescripcion())
                     .addParameter("ubicacion", agenda.getUbicacion())
                     .executeUpdate()
                     .getKey();
-            agenda.setIdAgenda(id);
+
+            agenda.setIdAgenda((keyObj instanceof Number) ? ((Number) keyObj).intValue() : null);
             return agenda;
         }
     }
@@ -34,7 +40,12 @@ public class AgendaDAO implements IAgendaDAO {
     public List<Agenda> obtenerTodos() {
         String sql = "SELECT * FROM agenda";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            return con.createQuery(sql).executeAndFetch(Agenda.class);
+            List<Map<String,Object>> rows = con.createQuery(sql).executeAndFetchTable().asList();
+            List<Agenda> lista = new ArrayList<>();
+            for(Map<String,Object> row : rows){
+                lista.add(mapRowToAgenda(row));
+            }
+            return lista;
         }
     }
 
@@ -42,9 +53,15 @@ public class AgendaDAO implements IAgendaDAO {
     public Agenda obtenerPorId(Integer id) {
         String sql = "SELECT * FROM agenda WHERE id_agenda=:id";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            return con.createQuery(sql)
-                      .addParameter("id", id)
-                      .executeAndFetchFirst(Agenda.class);
+            Map<String,Object> row = con.createQuery(sql)
+                                        .addParameter("id", id)
+                                        .executeAndFetchTable()
+                                        .asList()
+                                        .stream()
+                                        .findFirst()
+                                        .orElse(null);
+            if(row == null) return null;
+            return mapRowToAgenda(row);
         }
     }
 
@@ -56,9 +73,10 @@ public class AgendaDAO implements IAgendaDAO {
         try (Connection con = Sql2oDAO.getSql2o().open()) {
             con.createQuery(sql)
                .addParameter("dni_medico", agenda.getDniMedico())
-               .addParameter("fecha_atencion", agenda.getFechaAtencion())
-               .addParameter("hora_inicio", agenda.getHoraInicio())
-               .addParameter("hora_fin", agenda.getHoraFin())
+               .addParameter("fecha_atencion", Timestamp.valueOf(agenda.getFechaAtencion().replace("T", " ")))
+                .addParameter("hora_inicio", Time.valueOf(agenda.getHoraInicio()))
+                .addParameter("hora_fin", Time.valueOf(agenda.getHoraFin()))
+
                .addParameter("estado_agenda", agenda.getEstadoAgenda())
                .addParameter("descripcion", agenda.getDescripcion())
                .addParameter("ubicacion", agenda.getUbicacion())
@@ -76,5 +94,23 @@ public class AgendaDAO implements IAgendaDAO {
                .addParameter("id", id)
                .executeUpdate();
         }
+    }
+
+    // Método auxiliar para mapear una fila a Agenda
+    private Agenda mapRowToAgenda(Map<String,Object> row){
+        Agenda a = new Agenda();
+
+        // Convertir Integer seguro desde Number
+        a.setIdAgenda(row.get("id_agenda") != null ? ((Number) row.get("id_agenda")).intValue() : null);
+        a.setDniMedico(row.get("dni_medico") != null ? ((Number) row.get("dni_medico")).intValue() : null);
+
+        a.setFechaAtencion(row.get("fecha_atencion").toString().replace(" ", "T"));
+        a.setHoraInicio(row.get("hora_inicio").toString());
+        a.setHoraFin(row.get("hora_fin").toString());
+
+        a.setEstadoAgenda((String) row.get("estado_agenda"));
+        a.setDescripcion((String) row.get("descripcion"));
+        a.setUbicacion((String) row.get("ubicacion"));
+        return a;
     }
 }

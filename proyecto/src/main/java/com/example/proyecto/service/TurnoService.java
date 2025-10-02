@@ -25,14 +25,19 @@ public class TurnoService {
     }
 
     public Turno crear(Turno turno) {
+        System.out.println("Turno recibido: " + turno);
         // Validar paciente
-        if (pacienteService.obtenerPorId(turno.getDniPaciente()) == null) {
+        Integer dniPacienteInt = Integer.parseInt(turno.getDniPaciente());
+        System.out.println("dnipaciente: " + dniPacienteInt);
+        if (pacienteService.obtenerPorId(dniPacienteInt) == null) {
             throw new RuntimeException("Paciente no registrado. Registre al paciente antes de agendar el turno.");
         }
-
         // Validar agenda
-        Agenda agenda = agendaService.obtenerPorId(turno.getIdAgenda());
-        if (agenda == null || !agenda.getEstadoAgenda().equalsIgnoreCase("Disponible")) {
+        Integer idAgenda = turno.getIdAgenda(); 
+        System.out.println("idAgenda: " + idAgenda);
+        Agenda agenda = agendaService.obtenerPorId(idAgenda);
+        System.out.println("agenda: " + agenda);
+        if (agenda == null || !"Disponible".equalsIgnoreCase(agenda.getEstadoAgenda())) {
             throw new RuntimeException("No hay horarios disponibles para este médico en la fecha seleccionada.");
         }
 
