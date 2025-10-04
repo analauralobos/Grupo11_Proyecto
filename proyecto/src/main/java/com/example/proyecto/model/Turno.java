@@ -24,5 +24,6 @@ public class Turno {
     @JsonProperty("id_estado")
     private Integer idEstado;
 
+    
     private String motivo;
 }

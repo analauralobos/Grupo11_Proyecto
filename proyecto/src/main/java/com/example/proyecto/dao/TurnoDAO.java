@@ -36,6 +36,38 @@ public class TurnoDAO implements ITurnoDAO {
         }
     }
 
+    //validacion distinto paciente + misma agenda pero distinto horario
+
+   
+    public boolean existeTurnoEnHorario(Integer idAgenda, String fechaTurno, String horaTurno) {
+    String sql = "SELECT COUNT(*) FROM turno " +
+                 "WHERE id_agenda = :idAgenda AND DATE(fecha_turno) = DATE(:fechaTurno) " +
+                 "AND hora_turno = :horaTurno";
+    try (Connection con = Sql2oDAO.getSql2o().open()) {
+        long count = con.createQuery(sql)
+                .addParameter("idAgenda", idAgenda)
+                .addParameter("fechaTurno", fechaTurno.replace("T", " "))
+                .addParameter("horaTurno", horaTurno)
+                .executeScalar(Long.class);
+        return count > 0;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public List<Turno> obtenerTodos() {
         String sql = "SELECT * FROM turno";

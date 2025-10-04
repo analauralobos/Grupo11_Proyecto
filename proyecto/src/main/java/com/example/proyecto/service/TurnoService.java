@@ -41,6 +41,11 @@ public class TurnoService {
             throw new RuntimeException("No hay horarios disponibles.");
         }
 
+        // Validar disponibilidad del turno (recien agregado)
+        if (dao.existeTurnoEnHorario(turno.getIdAgenda(), turno.getFechaTurno(), turno.getHoraTurno())) {
+        throw new RuntimeException("Turno no disponible. Ya existe un turno en ese horario.");
+        }
+
         // Guardar turno
         turno.setIdEstado(1); // Reservado
         return dao.crear(turno);
