@@ -25,7 +25,6 @@ public class TurnoDAO implements ITurnoDAO {
             // Si el turno tiene fecha en formato texto tipo "2025-10-30T08:00"
             Timestamp fecha = Timestamp.valueOf(turno.getFechaTurno());
 
-
             Object keyObj = con.createQuery(sql, true)
                     .addParameter("dniMedico", turno.getDniMedico())
                     .addParameter("dniPaciente", turno.getDniPaciente())
@@ -35,7 +34,7 @@ public class TurnoDAO implements ITurnoDAO {
                     .addParameter("motivo", turno.getMotivo())
                     .executeUpdate()
                     .getKey();
-
+            //Seteo el id del turno con la clave autogenerada.. 
             turno.setIdTurno((keyObj instanceof Number) ? ((Number) keyObj).intValue() : null);
             return turno;
         }
