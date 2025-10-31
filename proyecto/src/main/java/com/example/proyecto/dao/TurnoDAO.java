@@ -115,6 +115,22 @@ public class TurnoDAO implements ITurnoDAO {
                 .executeAndFetch(Turno.class);
         }
     }
+
+    public Turno obtenerPorMedicoFechaHora(Integer dniMedico, String fechaTurno, String horaTurno) {
+        String sql = "SELECT id_turno AS idTurno, dni_paciente AS dniPaciente, dni_medico AS dniMedico, " +
+                     "fecha_turno AS fechaTurno, hora_turno AS horaTurno, id_estado AS idEstado, motivo " +
+                     "FROM turno " +
+                     "WHERE dni_medico = :dniMedico AND DATE(fecha_turno) = DATE(:fechaTurno) AND hora_turno = :horaTurno";
+    
+        try (Connection con = Sql2oDAO.getSql2o().open()) {
+            return con.createQuery(sql)
+                      .addParameter("dniMedico", dniMedico)
+                      .addParameter("fechaTurno", fechaTurno)
+                      .addParameter("horaTurno", horaTurno)
+                      .executeAndFetchFirst(Turno.class);
+        }
+    }
+    
     
 
 }
