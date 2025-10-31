@@ -9,25 +9,25 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class HistoriaClinicaService {
-    private final HistoriaClinicaDAO dao;
+    private final HistoriaClinicaDAO historiaClinicaDao;
 
     public List<HistoriaClinica> obtenerTodos() {
-        return dao.obtenerTodos();
+        return historiaClinicaDao.obtenerTodos();
     }
 
     public HistoriaClinica obtenerPorId(Integer id) {
-        return dao.obtenerPorId(id);
+        return historiaClinicaDao.obtenerPorId(id);
     }
 
     public HistoriaClinica crear(HistoriaClinica h) {
-        return dao.crear(h);
+        return historiaClinicaDao.crear(h);
     }
 
     public HistoriaClinica actualizar(HistoriaClinica h) {
-        return dao.actualizar(h);
+        return historiaClinicaDao.actualizar(h);
     }
 
     public void eliminar(Integer id) {
-        dao.eliminar(id);
+        historiaClinicaDao.eliminar(id);
     }
 }

@@ -14,23 +14,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TurnoController {
 
-    private final TurnoService service;
+    private final TurnoService turnoService;
 
     @GetMapping
     public List<Turno> obtenerTodos() {
-        return service.obtenerTodos();
+        return turnoService.obtenerTodos();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Turno> obtenerPorId(@PathVariable Integer id) {
-        Turno turno = service.obtenerPorId(id);
+        Turno turno = turnoService.obtenerPorId(id);
         return turno != null ? ResponseEntity.ok(turno) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
     public ResponseEntity<?> crearTurno(@RequestBody Turno turno) {
         try {
-            Turno nuevoTurno = service.crear(turno);
+            Turno nuevoTurno = turnoService.crear(turno);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevoTurno);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -39,12 +39,12 @@ public class TurnoController {
 
     @PutMapping
     public Turno actualizar(@RequestBody Turno turno) {
-        return service.actualizar(turno);
+        return turnoService.actualizar(turno);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        service.eliminar(id);
+        turnoService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 }

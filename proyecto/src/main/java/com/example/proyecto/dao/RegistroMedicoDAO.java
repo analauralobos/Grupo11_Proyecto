@@ -6,19 +6,17 @@ import com.example.proyecto.sql2o.Sql2oDAO;
 import org.sql2o.Connection;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class RegistroMedicoDAO implements IRegistroMedicoDAO {
 
     @Override
     public RegistroMedico crear(RegistroMedico rm) {
-        String sql = "INSERT INTO registro_medico (id_turno, id_medico, id_historiaclinica, diagnostico, tratamiento, estudios) " +
-                     "VALUES (:id_turno, :id_medico, :id_historiaclinica, :diagnostico, :tratamiento, :estudios)";
-        try (Connection con = Sql2oDAO.getSql2o().open()) {
+        String sql = " INSERT INTO registro_medico (id_turno, id_medico, id_historiaclinica, diagnostico, tratamiento, estudios)"
+            +"VALUES (:id_turno, :id_medico, :id_historiaclinica, :diagnostico, :tratamiento, :estudios)";
 
+        try (Connection con = Sql2oDAO.getSql2o().open()) {
             Object keyObj = con.createQuery(sql, true)
                     .addParameter("id_turno", rm.getIdTurno())
                     .addParameter("id_medico", rm.getIdMedico())
@@ -29,11 +27,14 @@ public class RegistroMedicoDAO implements IRegistroMedicoDAO {
                     .executeUpdate()
                     .getKey();
 
-            // Convertir BigInteger a Integer
-            rm.setIdRegistroMedico((keyObj instanceof Number) ? ((Number) keyObj).intValue() : null);
+            if (keyObj instanceof Number) {
+                rm.setIdRegistroMedico(((Number) keyObj).intValue());
+            }
 
             System.out.println("Registro médico creado con ID: " + rm.getIdRegistroMedico());
             return rm;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al crear el registro médico: " + e.getMessage(), e);
         }
     }
 
@@ -41,23 +42,13 @@ public class RegistroMedicoDAO implements IRegistroMedicoDAO {
     public List<RegistroMedico> obtenerTodos() {
         String sql = "SELECT * FROM registro_medico";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            List<Map<String, Object>> rows = con.createQuery(sql).executeAndFetchTable().asList();
-            List<RegistroMedico> lista = new ArrayList<>();
-
-            for (Map<String, Object> row : rows) {
-                RegistroMedico rm = new RegistroMedico();
-                rm.setIdRegistroMedico(((Number) row.get("id_registromedico")).intValue());
-                rm.setIdTurno((Integer) row.get("id_turno"));
-                rm.setIdMedico((Integer) row.get("id_medico"));
-                rm.setIdHistoriaClinica((Integer) row.get("id_historiaclinica"));
-                rm.setDiagnostico((String) row.get("diagnostico"));
-                rm.setTratamiento((String) row.get("tratamiento"));
-                rm.setEstudios((String) row.get("estudios"));
-                lista.add(rm);
-            }
+            List<RegistroMedico> lista = con.createQuery(sql)
+                    .executeAndFetch(RegistroMedico.class);
 
             System.out.println("Total registros médicos obtenidos: " + lista.size());
             return lista;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener registros médicos: " + e.getMessage(), e);
         }
     }
 
@@ -65,55 +56,55 @@ public class RegistroMedicoDAO implements IRegistroMedicoDAO {
     public RegistroMedico obtenerPorId(Integer id) {
         String sql = "SELECT * FROM registro_medico WHERE id_registromedico = :id";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
-            List<Map<String, Object>> rows = con.createQuery(sql)
+            RegistroMedico rm = con.createQuery(sql)
                     .addParameter("id", id)
-                    .executeAndFetchTable()
-                    .asList();
-            if (rows.isEmpty()) return null;
+                    .executeAndFetchFirst(RegistroMedico.class);
 
-            Map<String, Object> row = rows.get(0);
-            RegistroMedico rm = new RegistroMedico();
-            rm.setIdRegistroMedico(((Number) row.get("id_registromedico")).intValue());
-            rm.setIdTurno((Integer) row.get("id_turno"));
-            rm.setIdMedico((Integer) row.get("id_medico"));
-            rm.setIdHistoriaClinica((Integer) row.get("id_historiaclinica"));
-            rm.setDiagnostico((String) row.get("diagnostico"));
-            rm.setTratamiento((String) row.get("tratamiento"));
-            rm.setEstudios((String) row.get("estudios"));
+            if (rm != null)
+                System.out.println("Registro médico encontrado: " + rm.getIdRegistroMedico());
+            else
+                System.out.println("No se encontró el registro médico con ID: " + id);
 
-            System.out.println("Registro médico encontrado: " + rm.getIdRegistroMedico());
             return rm;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener el registro médico: " + e.getMessage(), e);
         }
     }
 
     @Override
     public RegistroMedico actualizar(RegistroMedico rm) {
-        String sql = "UPDATE registro_medico SET id_turno=:id_turno, id_medico=:id_medico, id_historiaclinica=:id_historiaclinica, " +
-                     "diagnostico=:diagnostico, tratamiento=:tratamiento, estudios=:estudios WHERE id_registromedico=:id";
+        String sql = " UPDATE registro_medico SET id_turno = :id_turno,id_medico = :id_medico, id_historiaclinica = :id_historiaclinica,"
+                + "diagnostico = :diagnostico, tratamiento = :tratamiento, estudios = :estudios WHERE id_registromedico = :id ";
+
         try (Connection con = Sql2oDAO.getSql2o().open()) {
             con.createQuery(sql)
-               .addParameter("id_turno", rm.getIdTurno())
-               .addParameter("id_medico", rm.getIdMedico())
-               .addParameter("id_historiaclinica", rm.getIdHistoriaClinica())
-               .addParameter("diagnostico", rm.getDiagnostico())
-               .addParameter("tratamiento", rm.getTratamiento())
-               .addParameter("estudios", rm.getEstudios())
-               .addParameter("id", rm.getIdRegistroMedico())
-               .executeUpdate();
+                    .addParameter("id_turno", rm.getIdTurno())
+                    .addParameter("id_medico", rm.getIdMedico())
+                    .addParameter("id_historiaclinica", rm.getIdHistoriaClinica())
+                    .addParameter("diagnostico", rm.getDiagnostico())
+                    .addParameter("tratamiento", rm.getTratamiento())
+                    .addParameter("estudios", rm.getEstudios())
+                    .addParameter("id", rm.getIdRegistroMedico())
+                    .executeUpdate();
 
             System.out.println("Registro médico actualizado: " + rm.getIdRegistroMedico());
             return rm;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar el registro médico: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void eliminar(Integer id) {
-        String sql = "DELETE FROM registro_medico WHERE id_registromedico=:id";
+        String sql = "DELETE FROM registro_medico WHERE id_registromedico = :id";
         try (Connection con = Sql2oDAO.getSql2o().open()) {
             con.createQuery(sql)
-               .addParameter("id", id)
-               .executeUpdate();
+                    .addParameter("id", id)
+                    .executeUpdate();
+
             System.out.println("Registro médico eliminado: " + id);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar el registro médico: " + e.getMessage(), e);
         }
     }
 }
