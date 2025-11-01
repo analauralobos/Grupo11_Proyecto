@@ -30,9 +30,8 @@ public class PacienteService {
         //Crear paciente
         /*Paciente pacienteCreado = pacienteDAO.crear(paciente);*/
 
-        //crear paciente con crudDao.. 
-        boolean resultado = pacienteDAO.insert(paciente);
-        //Paciente pacienteCreado = pacienteDAO.insert(paciente);
+        //crear paciente con crudDAO.. 
+        boolean resultado = pacienteDAO.insert(paciente);        
         if (!resultado) throw new RuntimeException("Error al crear paciente.");
         //obtengo el paciente creado
         Paciente pacienteCreado = pacienteDAO.obtenerPorId(paciente.getDni_paciente());

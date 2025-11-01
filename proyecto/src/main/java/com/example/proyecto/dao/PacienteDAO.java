@@ -33,7 +33,7 @@ public class PacienteDAO extends CrudDAO<Paciente> implements IPacienteDAO {
         return false; // porque dni_paciente no se genera automáticamente
     }
 
-
+/*
     @Override
     public Paciente crear(Paciente paciente) {        
         String sql = " INSERT INTO paciente (dni_paciente, nombre, apellido, obra_social, fecha_nacimiento, telefono, email)"
@@ -53,7 +53,7 @@ public class PacienteDAO extends CrudDAO<Paciente> implements IPacienteDAO {
             return paciente;
         }
     }
-
+*/
     @Override
     public List<Paciente> obtenerTodos() {
         String sql = " SELECT dni_paciente AS dni_paciente, nombre, apellido, obra_social AS obra_social,"
