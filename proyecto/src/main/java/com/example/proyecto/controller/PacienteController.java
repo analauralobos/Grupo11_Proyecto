@@ -11,32 +11,32 @@ import java.util.List;
 @RequestMapping("/pacientes")
 @RequiredArgsConstructor
 public class PacienteController {
-    private final PacienteService service;
+    private final PacienteService pacienteService;
 
     @GetMapping
     public List<Paciente> obtenerTodos() {
-        return service.obtenerTodos();
+        return pacienteService.obtenerTodos();
     }
 
     @GetMapping("/{dni}")
     public ResponseEntity<Paciente> obtenerPorId(@PathVariable Integer dni) {
-        Paciente paciente = service.obtenerPorId(dni);
+        Paciente paciente = pacienteService.obtenerPorId(dni);
         return paciente != null ? ResponseEntity.ok(paciente) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
     public Paciente crear(@RequestBody Paciente paciente) {
-        return service.crear(paciente);
+        return pacienteService.crear(paciente);
     }
 
     @PutMapping
     public Paciente actualizar(@RequestBody Paciente paciente) {
-        return service.actualizar(paciente);
+        return pacienteService.actualizar(paciente);
     }
 
     @DeleteMapping("/{dni}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer dni) {
-        service.eliminar(dni);
+        pacienteService.eliminar(dni);
         return ResponseEntity.noContent().build();
     }
 }

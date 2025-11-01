@@ -26,9 +26,7 @@ public class HistoriaClinicaDAO implements IHistoriaClinicaDAO {
 
             if (keyObj instanceof Number) {
                 hc.setIdHistoriaClinica(((Number) keyObj).intValue());
-            }
-
-            System.out.println("Historia clínica creada con ID: " + hc.getIdHistoriaClinica());
+            }            
             return hc;
         } catch (Exception e) {
             throw new RuntimeException("Error al crear la historia clínica: " + e.getMessage(), e);

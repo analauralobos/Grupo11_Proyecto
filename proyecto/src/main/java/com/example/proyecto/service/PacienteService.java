@@ -28,12 +28,18 @@ public class PacienteService {
     public Paciente crear(Paciente paciente) {
         
         //Crear paciente
-        Paciente pacienteCreado = pacienteDAO.crear(paciente);
+        /*Paciente pacienteCreado = pacienteDAO.crear(paciente);*/
+
+        //crear paciente con crudDao.. 
+        boolean resultado = pacienteDAO.insert(paciente);
+        //Paciente pacienteCreado = pacienteDAO.insert(paciente);
+        if (!resultado) throw new RuntimeException("Error al crear paciente.");
+        //obtengo el paciente creado
+        Paciente pacienteCreado = pacienteDAO.obtenerPorId(paciente.getDni_paciente());
 
         //Crear historia clínica inicial      
-        HistoriaClinica hc = new HistoriaClinica();
-        System.out.println("dni::: " + pacienteCreado.getDniPaciente());
-        hc.setDniPaciente(pacienteCreado.getDniPaciente());        
+        HistoriaClinica hc = new HistoriaClinica();        
+        hc.setDniPaciente(pacienteCreado.getDni_paciente());        
         hc.setAntecedentes("No registrados");
         hc.setAlergias("No registradas");
 
