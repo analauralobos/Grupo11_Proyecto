@@ -1,11 +1,12 @@
 CREAR TURNO
 
 {
-  "id_agenda": 1,
-  "dni_paciente": "1",
-  "fecha_turno": "2025-10-01T08:34:00",
-  "hora_turno": "08:34:00",
-  "motivo": "control prueba"
+    "dniPaciente": "40123456",
+    "dniMedico": "30111222",
+    "fechaTurno": "2025-10-22T09:30:00",
+    "horaTurno": "09:30:00",
+    "idEstado": 3,
+    "motivo": "electrocardiograma"
 }
 
 REGISTRAR ATENCION
@@ -18,3 +19,19 @@ REGISTRAR ATENCION
   "tratamiento": "Control mensual, dieta",
   "estudios": "Tensión arterial, ECG"
 }
+
+REGISTRAR PACIENTE
+http://localhost:8081/pacientes
+
+{
+    "dni_paciente": "44555999",
+    "nombre": "Mercedes",
+    "apellido": "López",
+    "obra_social": "PAMI",
+    "fecha_nacimiento": "1960-05-10T00:00:00",
+    "telefono": "2954656565",
+    "email": "mercedes.lopez@mail.com"
+}
+
+VER AGENDA 
+http://localhost:8081/medicos/30111222/agenda?fecha=2025-10-22
