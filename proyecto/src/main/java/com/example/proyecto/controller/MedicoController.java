@@ -1,4 +1,6 @@
 package com.example.proyecto.controller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.example.proyecto.model.Medico;
 import com.example.proyecto.model.Turno;
@@ -14,6 +16,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class MedicoController {
     private final MedicoService service;
+    private static final Logger registraLog = LoggerFactory.getLogger(MedicoController.class);
 
     @GetMapping
     public List<Medico> obtenerTodos() {
@@ -46,17 +49,22 @@ public class MedicoController {
     @GetMapping("/{dni}/agenda")
     public ResponseEntity<?> verAgenda(@PathVariable Integer dni, @RequestParam("fecha") String fechaStr) 
     {
-        try {
-            // 1. Parsear la fecha
-            LocalDate fecha = LocalDate.parse(fechaStr);            
+        registraLog.info("Solicitud recibida para ver agenda del médico con DNI {} en la fecha {}", dni, fechaStr);
+
+        try {            
+            LocalDate fecha = LocalDate.parse(fechaStr);
+            registraLog.debug("Fecha parseada correctamente: {}", fecha);
+
             List<Turno> agenda = service.verAgenda(dni, fecha);
+            registraLog.info("Agenda obtenida correctamente. Cantidad de turnos: {}", agenda.size());
+
             return ResponseEntity.ok(agenda); // 200 OK con lista
 
         } catch (RuntimeException e) {
-            // Si el service lanza una excepción (médico no existe o no trabaja)
+            registraLog.warn("Error de negocio al obtener agenda del médico {}: {}", dni, e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // Error de formato o cualquier otro
+            registraLog.error("Error inesperado al procesar la solicitud de agenda del médico {}: {}", dni, e.getMessage());
             return ResponseEntity.badRequest().body("Formato de fecha inválido. Use yyyy-mm-dd");
         }
     }

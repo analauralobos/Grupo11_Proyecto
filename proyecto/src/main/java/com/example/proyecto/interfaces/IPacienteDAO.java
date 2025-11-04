@@ -6,7 +6,7 @@ import java.util.List;
 public interface IPacienteDAO {
     List<Paciente> obtenerTodos();
     Paciente obtenerPorId(Integer dni);
-    Paciente crear(Paciente paciente);
+    /*Paciente crear(Paciente paciente);*/
     Paciente actualizar(Paciente paciente);
     void eliminar(Integer dni);
 }
